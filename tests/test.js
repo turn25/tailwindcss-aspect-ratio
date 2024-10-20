@@ -1,10 +1,26 @@
 const postcss = require('postcss')
 
-let expectedV3 = `
+const expectedV3 = `
+.aspect-h-2 {
+    --tw-aspect-h: 2;
+}
+.aspect-h-\\[123\\] {
+    --tw-aspect-h: 123;
+}
+.aspect-h-\\[var\\(--height\\)\\] {
+    --tw-aspect-h: var(--height);
+}
 .aspect-w-1 {
     position: relative;
-    padding-bottom: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
-    --tw-aspect-w: 1
+    --tw-aspect-ratio: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
+}
+.aspect-w-1::before {
+    content: "";
+    display: block;
+    padding-bottom: var(--tw-aspect-ratio);
+}
+.aspect-w-1 {
+    --tw-aspect-w: 1;
 }
 .aspect-w-1 > * {
     position: absolute;
@@ -13,12 +29,19 @@ let expectedV3 = `
     top: 0;
     right: 0;
     bottom: 0;
-    left: 0
+    left: 0;
 }
 .aspect-w-2 {
     position: relative;
-    padding-bottom: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
-    --tw-aspect-w: 2
+    --tw-aspect-ratio: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
+}
+.aspect-w-2::before {
+    content: "";
+    display: block;
+    padding-bottom: var(--tw-aspect-ratio);
+}
+.aspect-w-2 {
+    --tw-aspect-w: 2;
 }
 .aspect-w-2 > * {
     position: absolute;
@@ -27,15 +50,19 @@ let expectedV3 = `
     top: 0;
     right: 0;
     bottom: 0;
-    left: 0
-}
-.aspect-h-2 {
-    --tw-aspect-h: 2
+    left: 0;
 }
 .aspect-w-\\[123\\] {
     position: relative;
-    padding-bottom: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
-    --tw-aspect-w: 123
+    --tw-aspect-ratio: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
+}
+.aspect-w-\\[123\\]::before {
+    content: "";
+    display: block;
+    padding-bottom: var(--tw-aspect-ratio);
+}
+.aspect-w-\\[123\\] {
+    --tw-aspect-w: 123;
 }
 .aspect-w-\\[123\\] > * {
     position: absolute;
@@ -44,12 +71,19 @@ let expectedV3 = `
     top: 0;
     right: 0;
     bottom: 0;
-    left: 0
+    left: 0;
 }
 .aspect-w-\\[var\\(--width\\)\\] {
     position: relative;
-    padding-bottom: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
-    --tw-aspect-w: var(--width)
+    --tw-aspect-ratio: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
+}
+.aspect-w-\\[var\\(--width\\)\\]::before {
+    content: "";
+    display: block;
+    padding-bottom: var(--tw-aspect-ratio);
+}
+.aspect-w-\\[var\\(--width\\)\\] {
+    --tw-aspect-w: var(--width);
 }
 .aspect-w-\\[var\\(--width\\)\\] > * {
     position: absolute;
@@ -58,17 +92,13 @@ let expectedV3 = `
     top: 0;
     right: 0;
     bottom: 0;
-    left: 0
-}
-.aspect-h-\\[123\\] {
-    --tw-aspect-h: 123
-}
-.aspect-h-\\[var\\(--height\\)\\] {
-    --tw-aspect-h: var(--height)
+    left: 0;
 }
 .aspect-none {
     position: static;
-    padding-bottom: 0
+}
+.aspect-none::before {
+    content: none;
 }
 .aspect-none > * {
     position: static;
@@ -77,30 +107,21 @@ let expectedV3 = `
     top: auto;
     right: auto;
     bottom: auto;
-    left: auto
+    left: auto;
 }
 `
 
-it('v3', () => {
-  let css = postcss([
-    require('tailwindcss')({
-      content: [
-        {
-          raw: 'aspect-none aspect-w-1 aspect-w-2 aspect-h-2 aspect-w-[123] aspect-w-[var(--width)] aspect-h-[123] aspect-h-[var(--height)]',
-        },
-      ],
-      plugins: [require('../')],
-    }),
-  ]).process('@tailwind components').css
-
-  expect(css).toBe(expectedV3.trim())
-})
-
-let expectedV2 = `
+const expectedV2 = `
 .aspect-w-1,
 .aspect-w-2 {
   position: relative;
-  padding-bottom: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%)
+  --tw-aspect-ratio: calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%);
+}
+
+.aspect-w-1::before, .aspect-w-2::before {
+  content: "";
+  display: block;
+  padding-bottom: var(--tw-aspect-ratio);
 }
 
 .aspect-w-1 > *,
@@ -111,12 +132,15 @@ let expectedV2 = `
   top: 0;
   right: 0;
   bottom: 0;
-  left: 0
+  left: 0;
 }
 
 .aspect-none {
   position: static;
-  padding-bottom: 0
+}
+
+.aspect-none::before {
+  content: none;
 }
 
 .aspect-none > * {
@@ -126,24 +150,41 @@ let expectedV2 = `
   top: auto;
   right: auto;
   bottom: auto;
-  left: auto
+  left: auto;
 }
 
 .aspect-w-1 {
-  --tw-aspect-w: 1
+  --tw-aspect-w: 1;
 }
 
 .aspect-w-2 {
-  --tw-aspect-w: 2
+  --tw-aspect-w: 2;
 }
 
 .aspect-h-2 {
-  --tw-aspect-h: 2
+  --tw-aspect-h: 2;
 }
 `
 
+it('v3', () => {
+  return postcss([
+    require('tailwindcss')({
+      content: [
+        {
+          raw: 'aspect-none aspect-w-1 aspect-w-2 aspect-h-2 aspect-w-[123] aspect-w-[var(--width)] aspect-h-[123] aspect-h-[var(--height)]',
+        },
+      ],
+      plugins: [require('../')],
+    }),
+  ])
+    .process('@tailwind components', { from: undefined })
+    .then(({ css }) => {
+      expect(css.trim()).toBe(expectedV3.trim())
+    })
+})
+
 it('v2', () => {
-  postcss([
+  return postcss([
     require('tailwindcss-v2')({
       purge: { enabled: true, content: [{ raw: 'aspect-none aspect-w-1 aspect-w-2 aspect-h-2' }] },
       variants: [],
@@ -152,6 +193,6 @@ it('v2', () => {
   ])
     .process('@tailwind components', { from: undefined })
     .then(({ css }) => {
-      expect(css).toBe(expectedV2.trim())
+      expect(css.trim()).toBe(expectedV2.trim())
     })
 })

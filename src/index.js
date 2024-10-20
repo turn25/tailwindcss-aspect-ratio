@@ -24,7 +24,7 @@ const noneComponent = {
   '.aspect-none': {
     position: 'static',
     '&::before': {
-      padding: '0',
+      content: 'none',
     },
   },
   '.aspect-none > *': {
