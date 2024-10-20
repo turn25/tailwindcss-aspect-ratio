@@ -2,7 +2,12 @@ const plugin = require('tailwindcss/plugin')
 
 const baseStyles = {
   position: 'relative',
-  paddingBottom: `calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%)`,
+  '--tw-aspect-ratio': `calc(var(--tw-aspect-h) / var(--tw-aspect-w) * 100%)`,
+  '&::before': {
+    content: '""',
+    display: 'block',
+    paddingBottom: 'var(--tw-aspect-ratio)',
+  },
 }
 
 const childStyles = {
@@ -18,7 +23,9 @@ const childStyles = {
 const noneComponent = {
   '.aspect-none': {
     position: 'static',
-    paddingBottom: '0',
+    '&::before': {
+      padding: '0',
+    },
   },
   '.aspect-none > *': {
     position: 'static',
